@@ -1,113 +1,95 @@
-import Image from 'next/image'
+'use client'
+import './globals.css'
+import { ChartType, DisplayTremorChart } from '@/components/DisplayTremorCharts';
+import QueryWrapper from '@/components/Query';
+import { CustomTable } from '@/components/Table';
+import ToggleColorMode from '@/components/ToggleColorMode';
+import { ColorModeContext } from '@/context/theme';
+import { queryAxiom } from '@/utils/axiomQuery';
+import { tremorAdapter } from '@/utils/tremorAdapter';
+import { Card, Dropdown, DropdownItem, Text } from '@tremor/react';
+import { useState, useContext, useEffect, useMemo } from 'react';
+import cookie from "js-cookie";
 
 export default function Home() {
+  const [data, setData] = useState<any>(null);
+  const { colorMode } = useContext(ColorModeContext);
+
+  const [loading, setLoading] = useState(false);
+  const [chartType, setChartType] = useState(ChartType.lineChart);
+
+  const handleFetchData = async (
+    query: string,
+    startTime: Date,
+    endTime: Date
+  ) => {
+    setLoading(true);
+    const data = await queryAxiom(query, startTime, endTime);
+    const resp = tremorAdapter(data, startTime, endTime);
+    setData(resp);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    const selected = cookie.get("selectedDate");
+    const queryFromCookie = cookie.get("query");
+    if (selected !== undefined && queryFromCookie !== undefined) {
+      const currSelected = JSON.parse(selected);
+      const [start, end] = currSelected.data;
+      handleFetchData(queryFromCookie, start, end);
+    }
+    return () => {};
+  }, []);
+
+  const memorizedData = useMemo(() => data, [data]);
+  
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="p-6 ml-4 mr-4 mt-4">
+      <ToggleColorMode />
+      <QueryWrapper onSubmit={handleFetchData} />
+      {loading && <Text>loading.......</Text>}
+      <div className="flex flex-col">
+        {data?.data?.length > 1 && !loading && (
+          <Card
+            className={`mt-4 shadow-hidden border-hidden ring-none ${
+              colorMode === "dark" && "bg-slate-900 text-white"
+            }`}
           >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
+            <div className="w-[100px] px-2">
+              <Dropdown
+                className={`mt-2 mb-4 w-0 ${
+                  colorMode === "dark" && "bg-slate-900 text-white"
+                }`}
+                onValueChange={(value) => setChartType(value as ChartType)}
+                placeholder="lineChart"
+              >
+                {Object.values(ChartType).map((item, i) => (
+                  <DropdownItem
+                    className={`${
+                      colorMode === "dark" &&
+                      "bg-slate-900 opacity-25 text-white hover:bg-slate-800"
+                    }`}
+                    key={i}
+                    value={item}
+                    text={`${item[0].toUpperCase()}${item.substring(1)}`}
+                  />
+                ))}
+              </Dropdown>
+            </div>
+            <DisplayTremorChart chartType={chartType} chartData={memorizedData} />
+          </Card>
+        )}
+        {data?.rows?.length > 0 && !loading && (
+          <div className="mt-2 mb-4">
+            <CustomTable rows={data.rows} headers={data.headers} />
+          </div>
+        )}
+      </div>
+      {data?.totalsRows?.length > 0 && !loading && (
+        <div className="mt-4 mb-4">
+          <CustomTable rows={data.totalsRows} headers={data?.totalsHeaders} />
         </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800 hover:dark:bg-opacity-30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+      )}
+    </div>
+  );
 }
