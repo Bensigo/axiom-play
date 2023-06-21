@@ -28,13 +28,8 @@ const LineChart: React.FC = ({ data }: any) => {
         },
       },
       y: {
-        beginAtZero: true,
         ticks: {
           sampleSize: 20,
-          // callback: function(val, index) {
-          //     // Hide the label of every 2nd dataset
-          //     return index % 2 === 0 ? this.getLabelForValue(val as number) : '';
-          //   },
           font: {
             size: 13,
           },

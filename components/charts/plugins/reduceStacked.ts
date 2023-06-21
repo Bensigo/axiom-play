@@ -18,20 +18,20 @@ export const reduceStackedItemsPlugin: Plugin = {
         dataset.data &&
         dataset.data.length > maxStackedItems
       ) {
-        const reducedData = dataset.data.slice(0, maxStackedItems);
-        const reducedBackgroundColors = dataset.backgroundColor?.slice(
-          0,
-          maxStackedItems
-        );
-        const reducedBorderColors = dataset.borderColor?.slice(
-          0,
-          maxStackedItems
-        );
+        // const reducedData = dataset.data.slice(0, maxStackedItems);
+        // const reducedBackgroundColors = dataset.backgroundColor?.slice(
+        //   0,
+        //   maxStackedItems
+        // );
+        // const reducedBorderColors = dataset.borderColor?.slice(
+        //   0,
+        //   maxStackedItems
+        // );
 
-        // Update the dataset with the reduced stacked items
-        dataset.data = reducedData;
-        dataset.backgroundColor = reducedBackgroundColors;
-        dataset.borderColor = reducedBorderColors;
+        // // Update the dataset with the reduced stacked items
+        // dataset.data = reducedData;
+        // dataset.backgroundColor = reducedBackgroundColors;
+        // dataset.borderColor = reducedBorderColors;
       }
     }
   },
