@@ -8,6 +8,7 @@ import {
   DonutChart,
 } from "@tremor/react";
 import { getRandomColors } from "@/utils/colorGenerator";
+import { SeriesData } from "@/utils/tremorAdapter";
 
 export enum ChartType {
   lineChart = "lineChart",
@@ -35,6 +36,8 @@ function getCategoriesFromData(data: any[], maxCategories: number) {
 
 export const DisplayTremorChart = React.memo(
   ({ chartType, chartData }: { chartType: ChartType; chartData: any }) => {
+
+    
     const processedData = useMemo(() => {
       if (chartData.data.length === 0) {
         return [];
@@ -75,9 +78,13 @@ export const DisplayTremorChart = React.memo(
       showLegend: false,
       index: chartData.index,
       autoMinValue: true,
-      categories: top20Categories.slice(0, 10),
+      categories: top20Categories.slice(0, 20),
       colors: getRandomColors(),
     };
+
+    if (!chartData){
+      return;
+     }
 
     const chartComponents: { [key in ChartType]: any } = {
       lineChart: <LineChart className="mt-6" yAxisWidth={42} {...chartProps} />,
@@ -87,7 +94,7 @@ export const DisplayTremorChart = React.memo(
         <BarChart
           className="mt-6"
           {...chartProps}
-          categories={top20Categories.slice(0, 5)}
+          categories={top20Categories.slice(10)}
         />
       ),
       donutChart: (
@@ -115,3 +122,9 @@ export const DisplayTremorChart = React.memo(
     return <div>{chartComponent}</div>;
   }
 );
+
+
+
+
+
+

@@ -1,22 +1,29 @@
 
 import { Button, Icon } from "@tremor/react";
-import React, { useContext } from "react";
+import React from "react";
 import { MoonIcon, SunIcon } from "@heroicons/react/solid";
-import { ColorModeContext } from "../context/theme";
+
+import { useTheme } from "next-themes";
 
 
 const ToggleColorMode = () => {
-  const { colorMode, toggleColorMode } = useContext(ColorModeContext);
+  const { theme, setTheme } = useTheme()
+
+  const handleSetTheme = () => {
+    if (theme === 'light'){
+      setTheme('dark')
+      return
+    }
+    setTheme('light')
+  }
 
   return (
     <Button
-      onClick={toggleColorMode}
-      icon={colorMode === "dark" ? SunIcon : MoonIcon}
-      className={`mb-4 mt-2 flex self-center border-0 hover:border-0  bg-inherit hover:bg-inherit ${
-        colorMode === "dark" ? "text-white " : "text-black"
-      }  `}
+      onClick={handleSetTheme}
+      icon={theme === "dark" ? SunIcon : MoonIcon}
+    
     >
-      {colorMode === "dark" ? "Light" : "Dark"}
+      {/* {theme === "dark" ? "Light" : "Dark"} */}
     </Button>
   );
 };

@@ -9,26 +9,18 @@
 .recharts-tooltip-wrapper {
   z-index: 1000;
 }
+body {
+  color: #000;
+  background: #fff;
+}
 
-.dark-mode {
+[data-theme='dark'],
+[data-theme='dark'] body {
   background-color: rgb(15 23 42 / 1) !important;
   color: white;
 }
 
-.light-mode {
-  background-color: white!;
-  color: black;
-}
 
-.tremor-Dropdown-button {
-  background-color: inherit !important;
-}
 
-.recharts-tooltip-wrapper
-  .recharts-tooltip-wrapper-left
-  .recharts-tooltip-wrapper-top
-  .recharts-tooltip-wrapper-right
-  .recharts-tooltip-wrapper-bottom {
-  background-color: inherit !important;
-}
+
 

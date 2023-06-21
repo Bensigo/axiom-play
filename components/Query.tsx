@@ -3,7 +3,7 @@ import TextArea from "./TextArea";
 import { subHours, isSameDay } from "date-fns";
 import cookie from "js-cookie";
 import { Button, DateRangePicker } from "@tremor/react";
-import { ColorModeContext } from "../context/theme";
+import { useTheme } from "next-themes";
 
 
 const QueryWrapper = ({
@@ -12,12 +12,12 @@ const QueryWrapper = ({
   onSubmit: (query: string, s: any, e: any) => void;
 }) => {
   const [query, setQuery] = useState("");
-  const [selectedDate, setSelectedDate] = useState<[Date, Date, string]>([
-    subHours(new Date(), 24),
-    new Date(),
-    "tdy",
-  ]);
-  const { colorMode } = useContext(ColorModeContext);
+  const [selectedDate, setSelectedDate] = useState<any>({
+   from:  subHours(new Date(), 24),
+    to: new Date(),
+    selectValue: "tdy"
+});
+  const { theme } = useTheme()
   const handleChange = (e: any) => {
     setQuery(e.target.value);
   };
@@ -31,41 +31,41 @@ const QueryWrapper = ({
     }
     if (currSelected) {
       const selected = JSON.parse(currSelected as string);
-      if (selected.data) {
-        setSelectedDate(selected.data);
-      }
+      setSelectedDate(selected);
     }
   }, []);
 
-  const handleSelectedDateRage = (input: any[]) => {
-    let [start, end, format] = input;
-    const sameDay = isSameDay(start, end);
+  const handleSelectedDateRage = (input: any) => {
+    console.log({ input })
+    let {from, to, selectValue } = input;
+    const sameDay = isSameDay(from, to);
     if (sameDay) {
-      start = subHours(new Date(), 24);
-      setSelectedDate([start, end, format]);
+      from = subHours(new Date(), 24);
+      setSelectedDate({ from, to, selectValue});
     } else {
-      setSelectedDate([start, end, format]);
+      setSelectedDate({ from, to, selectValue});
     }
   };
 
+
   const handleSubmit = () => {
     const queryFromCookie = cookie.get("query");
-    const [start, end, format] = selectedDate;
+    const {from, to, selectValue } = selectedDate;
     if (queryFromCookie) {
       cookie.remove("query");
       cookie.remove("selectedDate");
     }
     cookie.set("query", query, { expires: 1 });
-    const selected = JSON.stringify({ data: [start, end, format] });
+    const selected = JSON.stringify({ from, to, selectValue  });
     cookie.set("selectedDate", selected);
-    onSubmit(query, start, end);
+    onSubmit(query, from, to);
   };
 
   return (
     <div
       className={`flex flex-col shadow-md rounded-md ${
-        colorMode === "dark" ? "bg-gray-800" : "bg-gray-900"
-      } p-6 gap-2  w-auto`}
+        theme === "dark" ? "bg-gray-800" : "bg-gray-900"
+      } p-6 gap-2  w-auto mt-2`}
     >
       <TextArea
         placeholder="Enter your query......"
@@ -85,6 +85,7 @@ const QueryWrapper = ({
           value={selectedDate}
           defaultValue={selectedDate}
           onValueChange={handleSelectedDateRage}
+  
         />
       </div>
     </div>
