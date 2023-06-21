@@ -14,7 +14,7 @@ import { Pagination } from "./Pagination";
 const MyTable = ({ headers, rows }: any) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  if(rows.length === 0) return;
+  
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -40,7 +40,8 @@ const MyTable = ({ headers, rows }: any) => {
     return rows?.slice(indexOfFirstItem, indexOfLastItem);
   }, [currentPage, rows]);
 
-  console.log({ slicedRows })
+  if(rows.length === 0) return;
+
 
   return (
     <Card
