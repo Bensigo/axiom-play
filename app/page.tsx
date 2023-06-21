@@ -27,7 +27,7 @@ function Home() {
   const { theme, setTheme } = useTheme();
 
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [chartType, setChartType] = useState(ChartType.lineChart);
 
   const handleFetchData = async (
@@ -44,9 +44,9 @@ function Home() {
   };
 
   useEffect(() => {
-    if(data && window){
+   
       setLoading(false);
-    }
+    
     
   }, [data])
 
