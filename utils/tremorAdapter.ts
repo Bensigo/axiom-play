@@ -105,34 +105,37 @@ const extractChartData = (series: SeriesData[], chartTimeFormat: string) => {
 };
 
 const extractTableHeaders = (matches: any[]): string[] => {
-  if (!matches.length)return [];
+  if (!matches.length) return [];
   const firstRow = matches?.[0];
   const { data, ...rest } = firstRow || {};
-  const currKeys = Object.keys(data).flatMap((key) => {
-    if (typeof data[key]=== 'object'){
-      const keys = Object.keys(data[key]).map((x) => `${key}.${x}`)
+  const currKeys = Object.keys(data || {}).flatMap((key) => {
+    if (typeof data?.[key] === 'object') {
+      const keys = Object.keys(data[key] || {}).map((x) => `${key}.${x}`);
       return keys;
     }
     return key;
-  })
+  });
+
+  console.log({ currKeys });
   return [...Object.keys(rest), ...currKeys];
 };
 
+
 const extractTableRows = (matches: any[]): any[] => {
-  // if(!matches.length)return []
   return matches?.map((row: any) => {
     const { data, ...rest } = row || {};
-    const currData = Object.keys(data).flatMap((key) => {
-      let objTableItems: any[] = []
-      if (typeof data[key] === 'object'){
-        objTableItems = Object.values(data[key])
-        return objTableItems
+    const currData = Object.keys(data || {}).flatMap((key) => {
+      let objTableItems: any[] = [];
+      if (typeof data?.[key] === 'object') {
+        objTableItems = Object.values(data[key] || {});
+        return objTableItems;
       }
-      return data[key]
-    })
+      return data?.[key];
+    });
     return [...Object.values(rest), ...currData];
   });
 };
+
 
 export const tremorAdapter = (
   resp: any,
@@ -161,32 +164,8 @@ export const tremorAdapter = (
   // handle table response
   result.headers = extractTableHeaders(resp.matches);
   result.rows = extractTableRows(resp.matches);
-
+  console.log({ result })
   return result;
 };
 
-export function processChartData(
-  series: SeriesData[],
-  startDate: Date,
-  endDate: Date
-) {
-  const dataset: { label: string; value: number; timestamp: any }[] = [];
-  const chartTimeFormat = getDateFormat(startDate, endDate);
-  const currCategories: string[] = [];
-  for (const item of series) {
-    const { groups, startTime } = item;
-    const time = format(new Date(startTime), chartTimeFormat);
-    for (const group of groups) {
-      const { aggregations, group: gp } = group;
-      let label = group.aggregations[0].op;
-      if (Object.keys(group.group).length > 0) {
-        label = Object.values(group.group).join(",");
-      }
-      currCategories.push(label);
-      const value = aggregations[0]?.value ?? 0;
-      dataset.push({ timestamp: time, label, value });
-    }
-  }
-  const categories = currCategories.slice(0, 20);
-  return { dataset, categories, index: "timestamp" };
-}
+

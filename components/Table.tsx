@@ -64,7 +64,7 @@ const MyTable = ({ headers, rows }: any) => {
                       key={j}
                       className="w-40 h-[120px] whitespace-wrap"
                     >
-                      {cell}
+                      {JSON.stringify(cell)}
                     </TableCell>
                   ))
                 : Object.values(row).map((cell: any, j: number) => (
@@ -72,7 +72,7 @@ const MyTable = ({ headers, rows }: any) => {
                       key={j}
                       className="w-40 h-[120px] whitespace-wrap"
                     >
-                      {cell}
+                      {JSON.stringify(cell)}
                     </TableCell>
                   ))}
             </TableRow>

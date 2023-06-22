@@ -80,13 +80,15 @@ const QueryWrapper = ({
         >
           Query
         </Button>
+        <div style={{ minWidth: '150px', width: '100%'}}>
         <DateRangePicker
-          className="w-fit"
+          className=" w-full "
           value={selectedDate}
           defaultValue={selectedDate}
           onValueChange={handleSelectedDateRage}
   
         />
+        </div>
       </div>
     </div>
   );
