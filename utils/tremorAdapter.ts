@@ -78,27 +78,33 @@ const extractChartData = (series: SeriesData[], chartTimeFormat: string) => {
   series?.forEach((item) => {
     const time = format(new Date(item?.startTime), chartTimeFormat);
     const aggregateVals: Record<string, any> = { time };
-    item.groups.forEach((group) => {
-      const { group: groupData, aggregations } = group;
-      let label = group.aggregations[0].op;
-      if (Object.keys(group.group).length > 0) {
-        label = Object.values(group.group).join(",");
-        Object.values(group.group).forEach((cur) => {
-          aggregateVals[aggregations[0].op] = aggregations[0].value;
-          aggregateVals[label] = aggregations[0].value;
-        })
+    if (item && item.groups){
+      item.groups.forEach((group) => {
+        const { group: groupData, aggregations } = group;
+        let label = group.aggregations[0].op;
+  
+        if (Object.keys(groupData).length > 0) {
+          label = Object.values(group.group).join(",");
+          Object.values(groupData).forEach((cur) => {
+            // aggregateVals[aggregations[0].op] = aggregations[0].value;
+            aggregateVals[label] = aggregations[0].value;
+          });
+        }
+  
+        if (Object.keys(groupData).length === 0 && !!aggregations?.length) {
+          aggregations?.forEach((aggregation) => {
+            const { op, value } = aggregation;
+     
+            aggregateVals[op] = value;
+            // aggregateVals[String(groupVal)] = aggregation.value;
+          });
+        }
+      });
+      if (Object.keys(aggregateVals).length) {
+        chartData.push({ ...aggregateVals });
       }
-      
-      // aggregations.forEach((aggregation) => {
-      //   const { op, value } = aggregation;
-      //   const groupVal: any = Object.values(group.group)[0];
-      //   aggregateVals[op] = value;
-      //   aggregateVals[String(groupVal)] = aggregation.value;
-      // });
-    });
-    if (Object.keys(aggregateVals).length) {
-      chartData.push({ ...aggregateVals });
     }
+  
   });
 
   return chartData;
@@ -109,24 +115,22 @@ const extractTableHeaders = (matches: any[]): string[] => {
   const firstRow = matches?.[0];
   const { data, ...rest } = firstRow || {};
   const currKeys = Object.keys(data || {}).flatMap((key) => {
-    if (typeof data?.[key] === 'object') {
+    if (typeof data?.[key] === "object") {
       const keys = Object.keys(data[key] || {}).map((x) => `${key}.${x}`);
       return keys;
     }
     return key;
   });
 
-  console.log({ currKeys });
   return [...Object.keys(rest), ...currKeys];
 };
-
 
 const extractTableRows = (matches: any[]): any[] => {
   return matches?.map((row: any) => {
     const { data, ...rest } = row || {};
     const currData = Object.keys(data || {}).flatMap((key) => {
       let objTableItems: any[] = [];
-      if (typeof data?.[key] === 'object') {
+      if (typeof data?.[key] === "object") {
         objTableItems = Object.values(data[key] || {});
         return objTableItems;
       }
@@ -135,7 +139,6 @@ const extractTableRows = (matches: any[]): any[] => {
     return [...Object.values(rest), ...currData];
   });
 };
-
 
 export const tremorAdapter = (
   resp: any,
@@ -164,8 +167,5 @@ export const tremorAdapter = (
   // handle table response
   result.headers = extractTableHeaders(resp.matches);
   result.rows = extractTableRows(resp.matches);
-  console.log({ result })
   return result;
 };
-
-

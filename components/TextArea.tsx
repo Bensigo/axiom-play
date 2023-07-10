@@ -6,7 +6,6 @@ type TextArea = {
   onSubmit: () => void;
 };
 
-import { Button, DateRangePicker } from "@tremor/react";
 
 
 const TextArea = ({ value, onChange, placeholder }: TextArea) => {

@@ -12,14 +12,11 @@ import { tremorAdapter } from "@/utils/tremorAdapter";
 import {
   Card,
   Select,
-  SelectItem,
-  Text,
+  SelectItem
 } from "@tremor/react";
 import { useState, useEffect, useMemo } from "react";
 import cookie from "js-cookie";
 import { useTheme } from "next-themes";
-import DisplayChartjs from "@/components/DisplayChartjs";
-import { generateChartDatav4, generateChartJsDataV3 } from "@/utils/chartjsAdpater";
 
 function Home() {
   const [data, setData] = useState<any>(null);
@@ -28,7 +25,7 @@ function Home() {
 
 
   const [loading, setLoading] = useState(false);
-  const [chartType, setChartType] = useState(ChartType.lineChart);
+  const [chartType, setChartType] = useState<any>();
 
   const handleFetchData = async (
     query: string,
@@ -50,10 +47,25 @@ function Home() {
     
   }, [data])
 
+
+  useEffect(() => {
+    const chartTyp = cookie.get('chartType')
+    if (chartTyp){
+      setChartType(chartTyp as ChartType)
+    }else {
+      setChartType(ChartType.lineChart)
+    }
+
+  }, [cookie])
+
   useEffect(() => {
     if (window){
       const selected = cookie.get("selectedDate");
       const queryFromCookie = cookie.get("query");
+      
+      
+      
+
       if (selected !== undefined && queryFromCookie !== undefined) {
         const currSelected = JSON.parse(selected);
        
@@ -65,7 +77,9 @@ function Home() {
     return () => {};
   }, []);
 
-  const memorizedData = useMemo(() => data, [data]);
+  useEffect(() => {}, [setChartType])
+
+  // const memorizedData = useMemo(() => data, [data]);
 
   return (
     <div className={`p-6 ml-4 mr-4 mt-4`}>
@@ -83,10 +97,16 @@ function Home() {
                     <div className="w-[100px] px-2">
                       <Select
                         className={`mt-2 mb-4 w-0`}
-                        onValueChange={(value) =>
+                        onValueChange={(value) => {
                           setChartType(value as ChartType)
+                          if (cookie.get('chartType')){
+                            cookie.remove('chartType')
+                          }
+                          cookie.set('chartType', value, { expires: 1 })
                         }
-                        placeholder="lineChart"
+                         
+                        }
+                        defaultValue={chartType}
                       >
                         {Object.values(ChartType).map((item, i) => (
                           <SelectItem key={i} value={item}>
@@ -98,7 +118,7 @@ function Home() {
                     </div>
                     <DisplayTremorChart
                       chartType={chartType}
-                      chartData={memorizedData}
+                      chartData={data}
                     />
                   </Card>}
 

@@ -1,5 +1,5 @@
 /* eslint-disable react/display-name */
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   LineChart,
   AreaChart,
@@ -34,10 +34,16 @@ function getCategoriesFromData(data: any[], maxCategories: number) {
   return sortedKeys.slice(0, maxCategories);
 }
 
+
 export const DisplayTremorChart = React.memo(
   ({ chartType, chartData }: { chartType: ChartType; chartData: any }) => {
+   
+ 
+
+    useEffect(() => {}, [chartType])
 
     
+
     const processedData = useMemo(() => {
       if (chartData.data.length === 0) {
         return [];
@@ -69,6 +75,10 @@ export const DisplayTremorChart = React.memo(
       return chartData.data;
     }, [chartData.data, chartType]);
 
+    if (!chartData){
+      return <></>;
+    }
+
     const top20Categories = getCategoriesFromData(chartData.data, 20);
 
     const chartProps: any = {
@@ -79,24 +89,24 @@ export const DisplayTremorChart = React.memo(
       index: chartData.index,
       autoMinValue: true,
       categories: top20Categories.slice(0, 20),
-      colors: getRandomColors(),
     };
 
-    if (!chartData){
-      return;
-     }
-
+ 
+    
     const chartComponents: { [key in ChartType]: any } = {
-      lineChart: <LineChart className="mt-6" yAxisWidth={42} {...chartProps} />,
+      lineChart: <LineChart className="mt-6" yAxisWidth={42} {...chartProps } />,
       areaChart: <AreaChart className="mt-6" {...chartProps} />,
       barList: <BarList className="mt-2" data={processedData} />,
-      barChart: (
-        <BarChart
-          className="mt-6"
-          {...chartProps}
-          categories={top20Categories.slice(10)}
-        />
-      ),
+      barChart: (() => {
+       const props = { ... chartProps, categories: top20Categories.slice(0, 8)}
+        return  (
+          <BarChart
+            className="mt-6"
+            {...props}
+       
+          />
+        )
+      })(),
       donutChart: (
         <DonutChart
           className="mt-4"
