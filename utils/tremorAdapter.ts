@@ -76,39 +76,40 @@ const extractChartData = (series: SeriesData[], chartTimeFormat: string) => {
   const chartData: any[] = [];
 
   series?.forEach((item) => {
-    const time = format(new Date(item?.startTime), chartTimeFormat);
+    if (!item.groups) {
+      return;
+    }
+    const time = format(new Date(item.startTime), chartTimeFormat);
     const aggregateVals: Record<string, any> = { time };
-    if (item && item.groups){
-      item.groups.forEach((group) => {
-        const { group: groupData, aggregations } = group;
-        let label = group.aggregations[0].op;
-  
-        if (Object.keys(groupData).length > 0) {
-          label = Object.values(group.group).join(",");
-          Object.values(groupData).forEach((cur) => {
-            // aggregateVals[aggregations[0].op] = aggregations[0].value;
-            aggregateVals[label] = aggregations[0].value;
-          });
-        }
-  
-        if (Object.keys(groupData).length === 0 && !!aggregations?.length) {
-          aggregations?.forEach((aggregation) => {
-            const { op, value } = aggregation;
-     
-            aggregateVals[op] = value;
-            // aggregateVals[String(groupVal)] = aggregation.value;
-          });
-        }
-      });
-      if (Object.keys(aggregateVals).length) {
-        chartData.push({ ...aggregateVals });
+    item.groups.forEach((group) => {
+      const { group: groupData, aggregations } = group;
+
+      if (Object.keys(groupData).length > 0) {
+        const label = Object.values(groupData).join(",");
+        Object.values(groupData).forEach((cur, i) => {
+          aggregateVals[aggregations[i].op] = aggregations[i].value;
+          aggregateVals[label] = aggregations[i].value;
+        });
       }
+      if (!!aggregations?.length) {
+        aggregations?.forEach((aggregation) => {
+          const { op, value } = aggregation;
+          aggregateVals[op] = value;
+          const groupVal: any = Object.values(group.group)[0];
+          aggregateVals[String(groupVal)] = aggregation.value;
+        });
+      }     
+    });
+    if (Object.keys(aggregateVals).length) {
+      chartData.push({ ...aggregateVals });
     }
   
   });
 
   return chartData;
 };
+
+
 
 const extractTableHeaders = (matches: any[]): string[] => {
   if (!matches.length) return [];

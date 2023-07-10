@@ -38,7 +38,7 @@ function getCategoriesFromData(data: any[], maxCategories: number) {
 export const DisplayTremorChart = React.memo(
   ({ chartType, chartData }: { chartType: ChartType; chartData: any }) => {
    
- 
+   console.log({ chartData })
 
     useEffect(() => {}, [chartType])
 
@@ -75,7 +75,7 @@ export const DisplayTremorChart = React.memo(
       return chartData.data;
     }, [chartData.data, chartType]);
 
-    if (!chartData){
+    if (!processedData){
       return <></>;
     }
 
@@ -92,7 +92,7 @@ export const DisplayTremorChart = React.memo(
     };
 
  
-    
+    console.log({ processedData })
     const chartComponents: { [key in ChartType]: any } = {
       lineChart: <LineChart className="mt-6" yAxisWidth={42} {...chartProps } />,
       areaChart: <AreaChart className="mt-6" {...chartProps} />,

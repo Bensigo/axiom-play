@@ -81,6 +81,8 @@ function Home() {
 
   // const memorizedData = useMemo(() => data, [data]);
 
+ 
+
   return (
     <div className={`p-6 ml-4 mr-4 mt-4`}>
       <ToggleColorMode />
@@ -89,7 +91,7 @@ function Home() {
       <div className="flex flex-col">
         {!!data && !loading && (
           <>
-                  {data.data.length > 1 && <Card
+                  {!!data.data?.length && <Card
                     className={`mt-4 shadow-hidden border-hidden ring-none ${
                       theme === "light" && "bg-white"
                     }`}
