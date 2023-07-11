@@ -1,5 +1,4 @@
 "use client";
-import './home.css'
 import {
   ChartType,
   DisplayTremorChart,
