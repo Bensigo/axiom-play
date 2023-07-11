@@ -1,6 +1,6 @@
 "use client";
 import "./globals.css";
-import HomeWrapper from "./ui/HomeWrapper";
+import HomeWrapper from "@/app/ui/HomeWrapper";
 
 
 function Home() {
