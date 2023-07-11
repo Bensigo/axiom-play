@@ -1,5 +1,5 @@
 "use client";
-import "./globals.css";
+import "./home.css";
 import HomeWrapper from "@/app/ui/homeWrapper";
 
 
