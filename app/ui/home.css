@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.App {
+  font-family: sans-serif;
+  text-align: center;
+}
+.recharts-tooltip-wrapper {
+  z-index: 1000;
+}
+body {
+  color: #000;
+  background: #fff;
+}
+
+[data-theme='dark'],
+[data-theme='dark'] body {
+  background-color: rgb(15 23 42 / 1) !important;
+  color: white;
+}
+
+
+
+
+
